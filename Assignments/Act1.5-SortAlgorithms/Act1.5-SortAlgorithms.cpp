@@ -47,5 +47,3 @@ print(list);
 
 return 0;
 }
-
-
