@@ -361,6 +361,49 @@ int readOption(
     }
 }
 
+// ==================== COMPLEJIDAD TEORICA ====================
+
+void printComplexity(int algorithm) {
+    cout << "Complejidad teorica:\n";
+
+    switch (algorithm) {
+        case 1:
+            cout << "  Mejor caso: O(n^2)\n";
+            cout << "  Peor caso: O(n^2)\n";
+            break;
+
+        case 2:
+            cout << "  Mejor caso: O(n^2)\n";
+            cout << "  Peor caso: O(n^2)\n";
+            break;
+
+        case 3:
+            cout << "  Mejor caso: O(n^2)\n";
+            cout << "  Peor caso: O(n^2)\n";
+            break;
+
+        case 4:
+            cout << "  Mejor caso: O(n)\n";
+            cout << "  Peor caso: O(n^2)\n";
+            break;
+
+        case 5:
+            cout << "  Mejor caso: O(n log n)\n";
+            cout << "  Peor caso: O(n log n)\n";
+            break;
+
+        case 6:
+            cout << "  Mejor caso: O(n log n)\n";
+            cout << "  Peor caso: O(n^2)\n";
+            break;
+
+        case 7:
+            cout << "  Mejor caso: O(n log n)\n";
+            cout << "  Peor caso: O(n^2)\n";
+            break;
+    }
+}
+
 
 // ==================== MAIN ====================
 
@@ -372,6 +415,7 @@ int main() {
         cout << "     ORDENAMIENTO DE REGISTROS\n";
         cout << "====================================\n\n";
 
+        // Seleccion del archivo
         cout << "Archivos disponibles:\n";
         cout << "1. log607-1.txt (desordenado)\n";
         cout << "2. log607-2.txt (casi ordenado)\n\n";
@@ -383,14 +427,18 @@ int main() {
         );
 
         string fileName;
+        string displayedFileName;
 
         if (fileOption == 1) {
             fileName = "../data/log607-1.txt";
+            displayedFileName = "log607-1.txt";
         }
         else {
             fileName = "../data/log607-2.txt";
+            displayedFileName = "log607-2.txt";
         }
 
+        // Seleccion del algoritmo
         cout << "\nAlgoritmos disponibles:\n";
         cout << "1. Swap Sort\n";
         cout << "2. Bubble Sort\n";
@@ -406,11 +454,13 @@ int main() {
             7
         );
 
+        // Limpiamos el salto de linea pendiente
         cin.ignore(
             numeric_limits<streamsize>::max(),
             '\n'
         );
 
+        // Prediccion del usuario
         string prediction;
 
         cout << "\nEscribe tu prediccion sobre el tiempo "
@@ -419,6 +469,7 @@ int main() {
         getline(cin, prediction);
 
         try {
+            // Lectura del archivo seleccionado
             vector<Log> logs = readLogs(fileName);
             Stats stats;
 
@@ -426,11 +477,13 @@ int main() {
                  << logs.size()
                  << " registros...\n";
 
+            // Inicio de la medicion
             auto start =
                 chrono::high_resolution_clock::now();
 
             sortLogs(logs, algorithm, stats);
 
+            // Fin de la medicion
             auto end =
                 chrono::high_resolution_clock::now();
 
@@ -439,41 +492,53 @@ int main() {
                     end - start
                 ).count();
 
+            // Resultados de la corrida
             cout << "\n============= RESULTADOS =============\n";
+
             cout << "Archivo: "
-                 << (fileOption == 1
-                     ? "log607-1.txt"
-                     : "log607-2.txt")
+                 << displayedFileName
                  << '\n';
 
             cout << "Cantidad de registros: "
-                 << logs.size() << '\n';
+                 << logs.size()
+                 << '\n';
 
             cout << "Algoritmo: "
-                 << algorithmName(algorithm) << '\n';
+                 << algorithmName(algorithm)
+                 << '\n';
 
             cout << "Tiempo: "
                  << elapsedTime
                  << " microsegundos\n";
 
             cout << "Prediccion inicial: "
-                 << prediction << '\n';
+                 << prediction
+                 << '\n';
 
+            printComplexity(algorithm);
+
+            // Verificacion del ordenamiento
             if (isSorted(logs)) {
-                cout << "Verificacion: ordenamiento correcto\n";
+                cout << "Verificacion: "
+                     << "ordenamiento correcto\n";
             }
             else {
-                cout << "Verificacion: error en el ordenamiento\n";
+                cout << "Verificacion: "
+                     << "error en el ordenamiento\n";
             }
 
+            // Estadisticas disponibles
             if (algorithm >= 1 && algorithm <= 4) {
                 cout << "Comparaciones: "
-                     << stats.comparisons << '\n';
+                     << stats.comparisons
+                     << '\n';
 
                 cout << "Intercambios: "
-                     << stats.swaps << '\n';
+                     << stats.swaps
+                     << '\n';
             }
 
+            // Mostrar los extremos del resultado
             if (!logs.empty()) {
                 cout << "\nPrimer registro:\n";
                 printLog(logs.front());
@@ -481,11 +546,36 @@ int main() {
                 cout << "\nUltimo registro:\n";
                 printLog(logs.back());
             }
+
+            // Evaluacion de la prediccion
+            cout << "\nEl tiempo obtenido coincidio "
+                 << "con tu prediccion?\n";
+
+            cout << "1. Si\n";
+            cout << "2. No\n";
+
+            int predictionResult = readOption(
+                "Selecciona una opcion: ",
+                1,
+                2
+            );
+
+            if (predictionResult == 1) {
+                cout << "Evaluacion: el resultado coincidio "
+                     << "con la prediccion inicial.\n";
+            }
+            else {
+                cout << "Evaluacion: el resultado no coincidio "
+                     << "con la prediccion inicial.\n";
+            }
         }
         catch (const exception& error) {
-            cerr << "\nError: " << error.what() << '\n';
+            cerr << "\nError: "
+                 << error.what()
+                 << '\n';
         }
 
+        // Repetir el proceso
         cout << "\nDeseas realizar otra corrida?\n";
         cout << "1. Si\n";
         cout << "0. No\n";
