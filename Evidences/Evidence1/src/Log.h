@@ -25,6 +25,8 @@ struct Log {
 
     long long createKey() const;
 
+    std::string toString() const;
+
     bool operator<(const Log& other) const;
     bool operator>(const Log& other) const;
     bool operator==(const Log& other) const;

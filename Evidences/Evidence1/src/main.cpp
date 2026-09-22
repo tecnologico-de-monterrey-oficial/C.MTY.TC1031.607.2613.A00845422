@@ -2,9 +2,9 @@
 
 #include <chrono>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <vector>
-#include <limits>
 
 using namespace std;
 
@@ -21,9 +21,9 @@ struct Stats {
 
 template <typename T>
 void swapElements(vector<T>& list, int first, int second) {
-    T auxiliar = list[first];
+    T auxiliary = list[first];
     list[first] = list[second];
-    list[second] = auxiliar;
+    list[second] = auxiliary;
 }
 
 
@@ -31,8 +31,10 @@ void swapElements(vector<T>& list, int first, int second) {
 
 template <typename T>
 void swapSort(vector<T>& list, Stats& stats) {
-    for (int i = 0; i < static_cast<int>(list.size()) - 1; i++) {
-        for (int j = i + 1; j < static_cast<int>(list.size()); j++) {
+    int size = static_cast<int>(list.size());
+
+    for (int i = 0; i < size - 1; i++) {
+        for (int j = i + 1; j < size; j++) {
             stats.comparisons++;
 
             if (list[i] > list[j]) {
@@ -256,13 +258,9 @@ bool isSorted(const vector<Log>& logs) {
 // ==================== MOSTRAR REGISTRO ====================
 
 void printLog(const Log& log) {
-    cout << log.month << ' '
-         << log.day << ' '
-         << log.year << ' '
-         << log.time << ' '
-         << log.ip << ' '
-         << log.message << '\n';
+    cout << log.toString() << '\n';
 }
+
 
 // ==================== NOMBRE DEL ALGORITMO ====================
 
@@ -361,6 +359,7 @@ int readOption(
     }
 }
 
+
 // ==================== COMPLEJIDAD TEORICA ====================
 
 void printComplexity(int algorithm) {
@@ -415,7 +414,6 @@ int main() {
         cout << "     ORDENAMIENTO DE REGISTROS\n";
         cout << "====================================\n\n";
 
-        // Seleccion del archivo
         cout << "Archivos disponibles:\n";
         cout << "1. log607-1.txt (desordenado)\n";
         cout << "2. log607-2.txt (casi ordenado)\n\n";
@@ -438,7 +436,6 @@ int main() {
             displayedFileName = "log607-2.txt";
         }
 
-        // Seleccion del algoritmo
         cout << "\nAlgoritmos disponibles:\n";
         cout << "1. Swap Sort\n";
         cout << "2. Bubble Sort\n";
@@ -454,13 +451,11 @@ int main() {
             7
         );
 
-        // Limpiamos el salto de linea pendiente
         cin.ignore(
             numeric_limits<streamsize>::max(),
             '\n'
         );
 
-        // Prediccion del usuario
         string prediction;
 
         cout << "\nEscribe tu prediccion sobre el tiempo "
@@ -469,7 +464,6 @@ int main() {
         getline(cin, prediction);
 
         try {
-            // Lectura del archivo seleccionado
             vector<Log> logs = readLogs(fileName);
             Stats stats;
 
@@ -477,13 +471,11 @@ int main() {
                  << logs.size()
                  << " registros...\n";
 
-            // Inicio de la medicion
             auto start =
                 chrono::high_resolution_clock::now();
 
             sortLogs(logs, algorithm, stats);
 
-            // Fin de la medicion
             auto end =
                 chrono::high_resolution_clock::now();
 
@@ -492,33 +484,26 @@ int main() {
                     end - start
                 ).count();
 
-            // Resultados de la corrida
+            bool ordered = isSorted(logs);
+
             cout << "\n============= RESULTADOS =============\n";
-
-            cout << "Archivo: "
-                 << displayedFileName
-                 << '\n';
-
+            cout << "Archivo: " << displayedFileName << '\n';
             cout << "Cantidad de registros: "
-                 << logs.size()
-                 << '\n';
+                 << logs.size() << '\n';
 
             cout << "Algoritmo: "
-                 << algorithmName(algorithm)
-                 << '\n';
+                 << algorithmName(algorithm) << '\n';
 
             cout << "Tiempo: "
                  << elapsedTime
                  << " microsegundos\n";
 
             cout << "Prediccion inicial: "
-                 << prediction
-                 << '\n';
+                 << prediction << '\n';
 
             printComplexity(algorithm);
 
-            // Verificacion del ordenamiento
-            if (isSorted(logs)) {
+            if (ordered) {
                 cout << "Verificacion: "
                      << "ordenamiento correcto\n";
             }
@@ -527,18 +512,14 @@ int main() {
                      << "error en el ordenamiento\n";
             }
 
-            // Estadisticas disponibles
             if (algorithm >= 1 && algorithm <= 4) {
                 cout << "Comparaciones: "
-                     << stats.comparisons
-                     << '\n';
+                     << stats.comparisons << '\n';
 
                 cout << "Intercambios: "
-                     << stats.swaps
-                     << '\n';
+                     << stats.swaps << '\n';
             }
 
-            // Mostrar los extremos del resultado
             if (!logs.empty()) {
                 cout << "\nPrimer registro:\n";
                 printLog(logs.front());
@@ -547,7 +528,16 @@ int main() {
                 printLog(logs.back());
             }
 
-            // Evaluacion de la prediccion
+            if (ordered) {
+                writeLogs(
+                    "../out/output607.txt",
+                    logs
+                );
+
+                cout << "\nArchivo generado: "
+                     << "../out/output607.txt\n";
+            }
+
             cout << "\nEl tiempo obtenido coincidio "
                  << "con tu prediccion?\n";
 
@@ -575,7 +565,6 @@ int main() {
                  << '\n';
         }
 
-        // Repetir el proceso
         cout << "\nDeseas realizar otra corrida?\n";
         cout << "1. Si\n";
         cout << "0. No\n";

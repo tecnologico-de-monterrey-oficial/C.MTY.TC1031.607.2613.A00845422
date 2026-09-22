@@ -1,5 +1,7 @@
 #include "Log.h"
 
+#include <iomanip>
+#include <sstream>
 #include <stdexcept>
 
 namespace {
@@ -46,6 +48,16 @@ Log::Log(
 
 
 long long Log::createKey() const {
+    if (year <= 0) {
+        throw std::invalid_argument("Anio invalido");
+    }
+
+    if (day < 1 || day > 31) {
+        throw std::invalid_argument(
+            "Dia fuera de rango: " + std::to_string(day)
+        );
+    }
+
     if (time.size() != 8 || time[2] != ':' || time[5] != ':') {
         throw std::invalid_argument("Hora invalida: " + time);
     }
@@ -58,7 +70,9 @@ long long Log::createKey() const {
         minute < 0 || minute > 59 ||
         second < 0 || second > 59) {
 
-        throw std::invalid_argument("Hora fuera de rango: " + time);
+        throw std::invalid_argument(
+            "Hora fuera de rango: " + time
+        );
     }
 
     int monthNumber = monthToNumber(month);
@@ -69,6 +83,22 @@ long long Log::createKey() const {
          + static_cast<long long>(hour) * 10000LL
          + static_cast<long long>(minute) * 100LL
          + second;
+}
+
+
+std::string Log::toString() const {
+    std::ostringstream output;
+
+    output << month << ' '
+           << std::setw(2)
+           << std::setfill('0')
+           << day << ' '
+           << year << ' '
+           << time << ' '
+           << ip << ' '
+           << message;
+
+    return output.str();
 }
 
 

@@ -72,3 +72,26 @@ std::vector<Log> readLogs(const std::string& fileName) {
 
     return logs;
 }
+
+void writeLogs(
+    const std::string& fileName,
+    const std::vector<Log>& logs
+) {
+    std::ofstream file(fileName);
+
+    if (!file.is_open()) {
+        throw std::runtime_error(
+            "No se pudo crear el archivo: " + fileName
+        );
+    }
+
+    for (const Log& log : logs) {
+        file << log.toString() << '\n';
+    }
+
+    if (!file.good()) {
+        throw std::runtime_error(
+            "Ocurrio un error al escribir: " + fileName
+        );
+    }
+}
