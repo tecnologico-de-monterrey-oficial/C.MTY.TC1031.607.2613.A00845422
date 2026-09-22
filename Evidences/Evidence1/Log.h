@@ -1,20 +1,30 @@
-#if !defined(Log_h)
-#define Log_h
+#ifndef LOG_H
+#define LOG_H
+
 #include <string>
-using namespace std;
 
+struct Log {
+    int year = 0;
+    std::string month;
+    int day = 0;
+    std::string time;
+    std::string ip;
+    std::string message;
+    long long key = 0;
 
-struct Log { 
-    int year;
-    string month;
-    int day;
-    string date;
-    string ip;
-    string message;
-    string key; 
     Log();
-    Log(int year, string month, int day, string date, string ip, string message, string key);
-    string createKey();
+
+    Log(
+        int year,
+        const std::string& month,
+        int day,
+        const std::string& time,
+        const std::string& ip,
+        const std::string& message
+    );
+
+    long long createKey() const;
+
     bool operator<(const Log& other) const;
     bool operator>(const Log& other) const;
     bool operator==(const Log& other) const;
@@ -23,9 +33,4 @@ struct Log {
     bool operator>=(const Log& other) const;
 };
 
-
-bool Log::operator>(const Log &other) const {
-    return key > other.key;
-} 
-
-#endif // Log_h
+#endif
