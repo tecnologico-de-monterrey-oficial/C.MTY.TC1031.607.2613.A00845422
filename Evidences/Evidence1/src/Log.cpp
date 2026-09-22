@@ -1,5 +1,6 @@
 #include "Log.h"
 
+#include <cctype>
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>
@@ -21,6 +22,56 @@ int monthToNumber(const std::string& month) {
     if (month == "Dec") return 12;
 
     throw std::invalid_argument("Mes invalido: " + month);
+}
+
+
+bool isLeapYear(int year) {
+    return (
+        year % 400 == 0 ||
+        (year % 4 == 0 && year % 100 != 0)
+    );
+}
+
+
+int daysInMonth(int month, int year) {
+    switch (month) {
+        case 2:
+            return isLeapYear(year) ? 29 : 28;
+
+        case 4:
+        case 6:
+        case 9:
+        case 11:
+            return 30;
+
+        default:
+            return 31;
+    }
+}
+
+
+bool hasValidTimeCharacters(const std::string& time) {
+    if (time.size() != 8) {
+        return false;
+    }
+
+    if (time[2] != ':' || time[5] != ':') {
+        return false;
+    }
+
+    for (int i = 0; i < static_cast<int>(time.size()); i++) {
+        if (i == 2 || i == 5) {
+            continue;
+        }
+
+        if (!std::isdigit(
+            static_cast<unsigned char>(time[i])
+        )) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 } // namespace
@@ -48,18 +99,27 @@ Log::Log(
 
 
 long long Log::createKey() const {
-    if (year <= 0) {
-        throw std::invalid_argument("Anio invalido");
-    }
-
-    if (day < 1 || day > 31) {
+    if (year < 1 || year > 9999) {
         throw std::invalid_argument(
-            "Dia fuera de rango: " + std::to_string(day)
+            "Anio fuera de rango: " +
+            std::to_string(year)
         );
     }
 
-    if (time.size() != 8 || time[2] != ':' || time[5] != ':') {
-        throw std::invalid_argument("Hora invalida: " + time);
+    int monthNumber = monthToNumber(month);
+    int maximumDay = daysInMonth(monthNumber, year);
+
+    if (day < 1 || day > maximumDay) {
+        throw std::invalid_argument(
+            "Dia invalido para el mes indicado: " +
+            std::to_string(day)
+        );
+    }
+
+    if (!hasValidTimeCharacters(time)) {
+        throw std::invalid_argument(
+            "Formato de hora invalido: " + time
+        );
     }
 
     int hour = std::stoi(time.substr(0, 2));
@@ -74,8 +134,6 @@ long long Log::createKey() const {
             "Hora fuera de rango: " + time
         );
     }
-
-    int monthNumber = monthToNumber(month);
 
     return static_cast<long long>(year) * 10000000000LL
          + static_cast<long long>(monthNumber) * 100000000LL
