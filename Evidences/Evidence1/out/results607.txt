@@ -138,3 +138,43 @@ Mejor caso: O(n log n)
 Peor caso: O(n^2)
 Coincidio con la prediccion: Si
 
+====================================
+Archivo: log607-1.txt
+Registros: 6818
+Algoritmo: Swap Sort
+Tiempo: 8785187 microsegundos
+Prediccion: 1
+Mejor caso: O(n^2)
+Peor caso: O(n^2)
+Coincidio con la prediccion: Si
+
+====================================
+Archivo: log607-2.txt
+Registros: 6818
+Algoritmo: Quick Sort
+Tiempo: 6898 microsegundos
+Prediccion: Prueba de validaci¢n
+Mejor caso: O(n log n)
+Peor caso: O(n^2)
+Coincidio con la prediccion: Si
+
+====================================
+Archivo: log607-2.txt
+Registros: 6818
+Algoritmo: Quick Sort
+Tiempo: 7155 microsegundos
+Prediccion: f
+Mejor caso: O(n log n)
+Peor caso: O(n^2)
+Coincidio con la prediccion: Si
+
+====================================
+Archivo: log607-2.txt
+Registros: 6818
+Algoritmo: Quick Sort
+Tiempo: 7648 microsegundos
+Prediccion: 1
+Mejor caso: O(n log n)
+Peor caso: O(n^2)
+Coincidio con la prediccion: Si
+
