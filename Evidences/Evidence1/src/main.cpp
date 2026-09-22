@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <limits>
 
 using namespace std;
 
@@ -263,55 +264,241 @@ void printLog(const Log& log) {
          << log.message << '\n';
 }
 
+// ==================== NOMBRE DEL ALGORITMO ====================
 
-// ==================== MAIN ====================
+string algorithmName(int option) {
+    switch (option) {
+        case 1: return "Swap Sort";
+        case 2: return "Bubble Sort";
+        case 3: return "Selection Sort";
+        case 4: return "Insertion Sort";
+        case 5: return "Merge Sort";
+        case 6: return "Quick Sort";
+        case 7: return "Shell Sort";
+        default: return "Desconocido";
+    }
+}
 
-int main() {
-    try {
-        vector<Log> logs = readLogs("../data/log607-1.txt");
 
-        cout << "Registros leidos: "
-             << logs.size() << '\n';
+// ==================== EJECUTAR ORDENAMIENTO ====================
 
-        auto start = chrono::high_resolution_clock::now();
+void sortLogs(
+    vector<Log>& logs,
+    int algorithm,
+    Stats& stats
+) {
+    if (logs.empty()) {
+        return;
+    }
 
-        if (!logs.empty()) {
+    switch (algorithm) {
+        case 1:
+            swapSort(logs, stats);
+            break;
+
+        case 2:
+            bubbleSort(logs, stats);
+            break;
+
+        case 3:
+            selectionSort(logs, stats);
+            break;
+
+        case 4:
+            insertionSort(logs, stats);
+            break;
+
+        case 5:
             mergeSort(
                 logs,
                 0,
                 static_cast<int>(logs.size()) - 1
             );
+            break;
+
+        case 6:
+            quickSort(
+                logs,
+                0,
+                static_cast<int>(logs.size()) - 1
+            );
+            break;
+
+        case 7:
+            shellSort(logs);
+            break;
+    }
+}
+
+
+// ==================== LEER OPCION ====================
+
+int readOption(
+    const string& message,
+    int minimum,
+    int maximum
+) {
+    int option;
+
+    while (true) {
+        cout << message;
+
+        if (
+            cin >> option &&
+            option >= minimum &&
+            option <= maximum
+        ) {
+            return option;
         }
 
-        auto end = chrono::high_resolution_clock::now();
+        cout << "Opcion invalida. Intenta nuevamente.\n";
 
-        long long time =
-            chrono::duration_cast<chrono::microseconds>(
-                end - start
-            ).count();
+        cin.clear();
+        cin.ignore(
+            numeric_limits<streamsize>::max(),
+            '\n'
+        );
+    }
+}
 
-        cout << "Algoritmo: Merge Sort\n";
-        cout << "Tiempo: " << time << " microsegundos\n";
 
-        if (isSorted(logs)) {
-            cout << "Resultado: registros ordenados correctamente\n";
+// ==================== MAIN ====================
+
+int main() {
+    int repeat;
+
+    do {
+        cout << "\n====================================\n";
+        cout << "     ORDENAMIENTO DE REGISTROS\n";
+        cout << "====================================\n\n";
+
+        cout << "Archivos disponibles:\n";
+        cout << "1. log607-1.txt (desordenado)\n";
+        cout << "2. log607-2.txt (casi ordenado)\n\n";
+
+        int fileOption = readOption(
+            "Selecciona un archivo: ",
+            1,
+            2
+        );
+
+        string fileName;
+
+        if (fileOption == 1) {
+            fileName = "../data/log607-1.txt";
         }
         else {
-            cout << "Resultado: error en el ordenamiento\n";
+            fileName = "../data/log607-2.txt";
         }
 
-        if (!logs.empty()) {
-            cout << "\nPrimer registro:\n";
-            printLog(logs.front());
+        cout << "\nAlgoritmos disponibles:\n";
+        cout << "1. Swap Sort\n";
+        cout << "2. Bubble Sort\n";
+        cout << "3. Selection Sort\n";
+        cout << "4. Insertion Sort\n";
+        cout << "5. Merge Sort\n";
+        cout << "6. Quick Sort\n";
+        cout << "7. Shell Sort\n\n";
 
-            cout << "\nUltimo registro:\n";
-            printLog(logs.back());
+        int algorithm = readOption(
+            "Selecciona un algoritmo: ",
+            1,
+            7
+        );
+
+        cin.ignore(
+            numeric_limits<streamsize>::max(),
+            '\n'
+        );
+
+        string prediction;
+
+        cout << "\nEscribe tu prediccion sobre el tiempo "
+             << "de esta corrida y explica por que:\n";
+
+        getline(cin, prediction);
+
+        try {
+            vector<Log> logs = readLogs(fileName);
+            Stats stats;
+
+            cout << "\nProcesando "
+                 << logs.size()
+                 << " registros...\n";
+
+            auto start =
+                chrono::high_resolution_clock::now();
+
+            sortLogs(logs, algorithm, stats);
+
+            auto end =
+                chrono::high_resolution_clock::now();
+
+            long long elapsedTime =
+                chrono::duration_cast<chrono::microseconds>(
+                    end - start
+                ).count();
+
+            cout << "\n============= RESULTADOS =============\n";
+            cout << "Archivo: "
+                 << (fileOption == 1
+                     ? "log607-1.txt"
+                     : "log607-2.txt")
+                 << '\n';
+
+            cout << "Cantidad de registros: "
+                 << logs.size() << '\n';
+
+            cout << "Algoritmo: "
+                 << algorithmName(algorithm) << '\n';
+
+            cout << "Tiempo: "
+                 << elapsedTime
+                 << " microsegundos\n";
+
+            cout << "Prediccion inicial: "
+                 << prediction << '\n';
+
+            if (isSorted(logs)) {
+                cout << "Verificacion: ordenamiento correcto\n";
+            }
+            else {
+                cout << "Verificacion: error en el ordenamiento\n";
+            }
+
+            if (algorithm >= 1 && algorithm <= 4) {
+                cout << "Comparaciones: "
+                     << stats.comparisons << '\n';
+
+                cout << "Intercambios: "
+                     << stats.swaps << '\n';
+            }
+
+            if (!logs.empty()) {
+                cout << "\nPrimer registro:\n";
+                printLog(logs.front());
+
+                cout << "\nUltimo registro:\n";
+                printLog(logs.back());
+            }
         }
-    }
-    catch (const exception& error) {
-        cerr << "Error: " << error.what() << '\n';
-        return 1;
-    }
+        catch (const exception& error) {
+            cerr << "\nError: " << error.what() << '\n';
+        }
+
+        cout << "\nDeseas realizar otra corrida?\n";
+        cout << "1. Si\n";
+        cout << "0. No\n";
+
+        repeat = readOption(
+            "Selecciona una opcion: ",
+            0,
+            1
+        );
+
+    } while (repeat == 1);
+
+    cout << "\nPrograma terminado.\n";
 
     return 0;
 }
