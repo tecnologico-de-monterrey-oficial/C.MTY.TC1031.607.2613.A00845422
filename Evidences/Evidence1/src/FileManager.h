@@ -15,4 +15,16 @@ void writeLogs(
     const std::vector<Log>& logs
 );
 
+void appendRunResult(
+    const std::string& fileName,
+    const std::string& inputFile,
+    int recordCount,
+    const std::string& algorithm,
+    long long elapsedTime,
+    const std::string& prediction,
+    const std::string& bestCase,
+    const std::string& worstCase,
+    bool predictionMatched
+);
+
 #endif

@@ -365,46 +365,45 @@ int readOption(
 
 // ==================== COMPLEJIDAD TEORICA ====================
 
+string bestCaseComplexity(int algorithm) {
+    switch (algorithm) {
+        case 1: return "O(n^2)";
+        case 2: return "O(n^2)";
+        case 3: return "O(n^2)";
+        case 4: return "O(n)";
+        case 5: return "O(n log n)";
+        case 6: return "O(n log n)";
+        case 7: return "O(n log n)";
+        default: return "Desconocida";
+    }
+}
+
+
+string worstCaseComplexity(int algorithm) {
+    switch (algorithm) {
+        case 1: return "O(n^2)";
+        case 2: return "O(n^2)";
+        case 3: return "O(n^2)";
+        case 4: return "O(n^2)";
+        case 5: return "O(n log n)";
+        case 6: return "O(n^2)";
+        case 7: return "O(n^2)";
+        default: return "Desconocida";
+    }
+}
+
 void printComplexity(int algorithm) {
     cout << "Complejidad teorica:\n";
 
-    switch (algorithm) {
-        case 1:
-            cout << "  Mejor caso: O(n^2)\n";
-            cout << "  Peor caso: O(n^2)\n";
-            break;
+    cout << "  Mejor caso: "
+         << bestCaseComplexity(algorithm)
+         << '\n';
 
-        case 2:
-            cout << "  Mejor caso: O(n^2)\n";
-            cout << "  Peor caso: O(n^2)\n";
-            break;
-
-        case 3:
-            cout << "  Mejor caso: O(n^2)\n";
-            cout << "  Peor caso: O(n^2)\n";
-            break;
-
-        case 4:
-            cout << "  Mejor caso: O(n)\n";
-            cout << "  Peor caso: O(n^2)\n";
-            break;
-
-        case 5:
-            cout << "  Mejor caso: O(n log n)\n";
-            cout << "  Peor caso: O(n log n)\n";
-            break;
-
-        case 6:
-            cout << "  Mejor caso: O(n log n)\n";
-            cout << "  Peor caso: O(n^2)\n";
-            break;
-
-        case 7:
-            cout << "  Mejor caso: O(n log n)\n";
-            cout << "  Peor caso: O(n^2)\n";
-            break;
-    }
+    cout << "  Peor caso: "
+         << worstCaseComplexity(algorithm)
+         << '\n';
 }
+
 
 // ==================== LEER FECHA Y HORA ====================
 
@@ -601,14 +600,32 @@ int main() {
                 2
             );
 
-            if (predictionResult == 1) {
-                cout << "Evaluacion: el resultado coincidio "
-                     << "con la prediccion inicial.\n";
-            }
-            else {
-                cout << "Evaluacion: el resultado no coincidio "
-                     << "con la prediccion inicial.\n";
-            }
+            bool predictionMatched =
+    predictionResult == 1;
+
+if (predictionMatched) {
+    cout << "Evaluacion: el resultado coincidio "
+         << "con la prediccion inicial.\n";
+}
+else {
+    cout << "Evaluacion: el resultado no coincidio "
+         << "con la prediccion inicial.\n";
+}
+
+appendRunResult(
+    "../out/results607.txt",
+    displayedFileName,
+    static_cast<int>(logs.size()),
+    algorithmName(algorithm),
+    elapsedTime,
+    prediction,
+    bestCaseComplexity(algorithm),
+    worstCaseComplexity(algorithm),
+    predictionMatched
+);
+
+cout << "Resultado guardado en "
+     << "../out/results607.txt\n";
 
             // ==========================================
             // BUSQUEDA POR RANGO

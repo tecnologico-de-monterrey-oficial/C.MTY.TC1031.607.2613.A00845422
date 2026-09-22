@@ -1,0 +1,10 @@
+====================================
+Archivo: log607-1.txt
+Registros: 6818
+Algoritmo: Quick Sort
+Tiempo: 15025 microsegundos
+Prediccion: 1
+Mejor caso: O(n log n)
+Peor caso: O(n^2)
+Coincidio con la prediccion: No
+

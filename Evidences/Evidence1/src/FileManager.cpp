@@ -95,3 +95,41 @@ void writeLogs(
         );
     }
 }
+
+void appendRunResult(
+    const std::string& fileName,
+    const std::string& inputFile,
+    int recordCount,
+    const std::string& algorithm,
+    long long elapsedTime,
+    const std::string& prediction,
+    const std::string& bestCase,
+    const std::string& worstCase,
+    bool predictionMatched
+) {
+    std::ofstream file(
+        fileName,
+        std::ios::app
+    );
+
+    if (!file.is_open()) {
+        throw std::runtime_error(
+            "No se pudo abrir el historial: " + fileName
+        );
+    }
+
+    file << "====================================\n";
+    file << "Archivo: " << inputFile << '\n';
+    file << "Registros: " << recordCount << '\n';
+    file << "Algoritmo: " << algorithm << '\n';
+    file << "Tiempo: " << elapsedTime
+         << " microsegundos\n";
+
+    file << "Prediccion: " << prediction << '\n';
+    file << "Mejor caso: " << bestCase << '\n';
+    file << "Peor caso: " << worstCase << '\n';
+
+    file << "Coincidio con la prediccion: "
+         << (predictionMatched ? "Si" : "No")
+         << "\n\n";
+}
