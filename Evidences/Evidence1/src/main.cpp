@@ -56,13 +56,21 @@ void bubbleSort(vector<T>& list, Stats& stats) {
     int size = static_cast<int>(list.size());
 
     for (int i = 0; i < size - 1; i++) {
+        bool swapped = false;
+
         for (int j = 0; j < size - 1 - i; j++) {
             stats.comparisons++;
 
             if (list[j] > list[j + 1]) {
                 swapElements(list, j, j + 1);
                 stats.swaps++;
+                swapped = true;
             }
+        }
+
+        // Si no hubo intercambios, la lista ya esta ordenada
+        if (!swapped) {
+            break;
         }
     }
 }
@@ -368,7 +376,7 @@ int readOption(
 string bestCaseComplexity(int algorithm) {
     switch (algorithm) {
         case 1: return "O(n^2)";
-        case 2: return "O(n^2)";
+        case 2: return "O(n)";
         case 3: return "O(n^2)";
         case 4: return "O(n)";
         case 5: return "O(n log n)";
