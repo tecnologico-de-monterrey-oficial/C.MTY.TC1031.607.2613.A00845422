@@ -1,4 +1,6 @@
 #include "FileManager.h"
+#include "SearchManager.h"
+
 
 #include <chrono>
 #include <iostream>
@@ -488,6 +490,7 @@ int main() {
 
             cout << "\n============= RESULTADOS =============\n";
             cout << "Archivo: " << displayedFileName << '\n';
+
             cout << "Cantidad de registros: "
                  << logs.size() << '\n';
 
@@ -537,6 +540,28 @@ int main() {
                 cout << "\nArchivo generado: "
                      << "../out/output607.txt\n";
             }
+
+            // ==========================================
+            // PRUEBA TEMPORAL DE TIMESTAMP DUPLICADO
+            // ==========================================
+
+            long long duplicateKey = 20241002230424LL;
+
+            int duplicateStart =
+                findLowerBound(logs, duplicateKey);
+
+            int duplicateEnd =
+                findUpperBound(logs, duplicateKey);
+
+            cout << "\nPrueba de timestamp duplicado:\n";
+
+            cout << "Oct 02 2024 23:04:24 aparece "
+                 << duplicateEnd - duplicateStart
+                 << " veces.\n";
+
+            // ==========================================
+            // EVALUACION DE LA PREDICCION
+            // ==========================================
 
             cout << "\nEl tiempo obtenido coincidio "
                  << "con tu prediccion?\n";
