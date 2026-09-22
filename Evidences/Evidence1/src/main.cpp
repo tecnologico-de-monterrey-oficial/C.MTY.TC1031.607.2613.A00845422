@@ -7,6 +7,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 
@@ -405,6 +406,53 @@ void printComplexity(int algorithm) {
     }
 }
 
+// ==================== LEER FECHA Y HORA ====================
+
+long long readDateTimeKey(const string& message) {
+    while (true) {
+        cout << message;
+        cout << "Formato: Mon DD YYYY HH:MM:SS\n";
+        cout << "Ejemplo: Oct 02 2024 23:04:24\n";
+        cout << "> ";
+
+        string inputLine;
+        getline(cin >> ws, inputLine);
+
+        istringstream input(inputLine);
+
+        string month;
+        int day;
+        int year;
+        string time;
+        string extra;
+
+        if (
+            !(input >> month >> day >> year >> time) ||
+            input >> extra
+        ) {
+            cout << "Formato invalido. Intenta nuevamente.\n\n";
+            continue;
+        }
+
+        try {
+            Log limit(
+                year,
+                month,
+                day,
+                time,
+                "",
+                ""
+            );
+
+            return limit.key;
+        }
+        catch (const exception& error) {
+            cout << "Fecha u hora invalida: "
+                 << error.what() << "\n\n";
+        }
+    }
+}
+
 
 // ==================== MAIN ====================
 
@@ -541,28 +589,6 @@ int main() {
                      << "../out/output607.txt\n";
             }
 
-            // ==========================================
-            // PRUEBA TEMPORAL DE TIMESTAMP DUPLICADO
-            // ==========================================
-
-            long long duplicateKey = 20241002230424LL;
-
-            int duplicateStart =
-                findLowerBound(logs, duplicateKey);
-
-            int duplicateEnd =
-                findUpperBound(logs, duplicateKey);
-
-            cout << "\nPrueba de timestamp duplicado:\n";
-
-            cout << "Oct 02 2024 23:04:24 aparece "
-                 << duplicateEnd - duplicateStart
-                 << " veces.\n";
-
-            // ==========================================
-            // EVALUACION DE LA PREDICCION
-            // ==========================================
-
             cout << "\nEl tiempo obtenido coincidio "
                  << "con tu prediccion?\n";
 
@@ -583,6 +609,71 @@ int main() {
                 cout << "Evaluacion: el resultado no coincidio "
                      << "con la prediccion inicial.\n";
             }
+
+            // ==========================================
+            // BUSQUEDA POR RANGO
+            // ==========================================
+
+            cout << "\n====================================\n";
+            cout << "        BUSQUEDA POR RANGO\n";
+            cout << "====================================\n\n";
+
+            long long startKey;
+            long long endKey;
+
+            do {
+                startKey = readDateTimeKey(
+                    "Ingresa la fecha y hora inicial.\n"
+                );
+
+                cout << '\n';
+
+                endKey = readDateTimeKey(
+                    "Ingresa la fecha y hora final.\n"
+                );
+
+                if (startKey > endKey) {
+                    cout << "\nLa fecha inicial no puede ser "
+                         << "posterior a la fecha final.\n";
+
+                    cout << "Ingresa nuevamente el rango.\n\n";
+                }
+
+            } while (startKey > endKey);
+
+            int rangeStart =
+                findLowerBound(logs, startKey);
+
+            int rangeEnd =
+                findUpperBound(logs, endKey);
+
+            vector<Log> range(
+                logs.begin() + rangeStart,
+                logs.begin() + rangeEnd
+            );
+
+            cout << "\nRegistros encontrados: "
+                 << range.size() << '\n';
+
+            if (range.empty()) {
+                cout << "No existen registros dentro "
+                     << "del rango indicado.\n";
+            }
+            else {
+                cout << "\nResultados del rango:\n\n";
+
+                for (const Log& log : range) {
+                    printLog(log);
+                }
+            }
+
+            writeLogs(
+                "../out/range607.txt",
+                range
+            );
+
+            cout << "\nArchivo generado: "
+                 << "../out/range607.txt\n";
         }
         catch (const exception& error) {
             cerr << "\nError: "
