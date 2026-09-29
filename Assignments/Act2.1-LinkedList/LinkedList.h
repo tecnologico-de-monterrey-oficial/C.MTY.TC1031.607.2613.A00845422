@@ -1,5 +1,3 @@
-// David Alonso Cantú Delgado
-// A00189239
 #ifndef LinkedList_h
 #define LinkedList_h
 
@@ -42,13 +40,19 @@ void LinkedList<T>::print() {
     cout << endl;
 }
 
-
-
-
-
-
-
-
-
+template <typename T>
+void LinkedList<T>::push_back(T data){
+    Node<T>* node = new Node<T>(data);   
+    if (head == nullptr) {              
+        head = node;                    
+    } else {
+        Node<T>* aux = head;            
+        while (aux->next != nullptr) {  
+            aux = aux->next;            
+        }
+        aux->next = node;               
+    }
+    size++;
+}
 
 #endif /* LinkedList_h */
