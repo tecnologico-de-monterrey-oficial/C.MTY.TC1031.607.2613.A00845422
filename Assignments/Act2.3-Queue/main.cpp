@@ -5,6 +5,7 @@
 
 using namespace std;
 
+// representa a una persona que espera ser atendida
 struct Cliente {
     string nombre;
     int boletos;
@@ -35,6 +36,7 @@ int main() {
 
                 cout << "Cantidad de boletos: ";
                 cin >> nuevoCliente.boletos;
+
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                 fila.push(nuevoCliente);
@@ -47,14 +49,14 @@ int main() {
             case 2: {
                 if (fila.isEmpty()) {
                     cout << "No hay clientes en la fila." << endl;
-                } else {
-                    Cliente atendido = fila.front();
+                }
+                else {
+                    // pop elimina y regresa al primer cliente de la fila
+                    Cliente atendido = fila.pop();
 
                     cout << "Atendiendo a: " << atendido.nombre << endl;
                     cout << "Boletos solicitados: "
                          << atendido.boletos << endl;
-
-                    fila.pop();
                 }
                 break;
             }
@@ -62,7 +64,9 @@ int main() {
             case 3: {
                 if (fila.isEmpty()) {
                     cout << "No hay clientes en la fila." << endl;
-                } else {
+                }
+                else {
+                    // front muestra al cliente sin eliminarlo
                     Cliente siguiente = fila.front();
 
                     cout << "Siguiente cliente: "
@@ -84,6 +88,7 @@ int main() {
 
             default:
                 cout << "Opcion no valida." << endl;
+                break;
         }
 
     } while (opcion != 5);
