@@ -2,6 +2,8 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <chrono>
+#include <filesystem>
 
 #include "FileManager.h"
 
@@ -82,6 +84,128 @@ void showMenu() {
     cout << "5. Salir\n";
 }
 
+// ordena los logs, muestra las mediciones y genera el archivo
+// regresa false si termina la entrada de la terminal
+bool sortLogs(
+    DoublyLinkedList<Log>& logs,
+    const string& fileName
+) {
+    if (logs.isEmpty()) {
+        cout << "\nNo hay registros para ordenar.\n";
+        return true;
+    }
+
+    // verificamos el orden antes de ejecutar Merge Sort
+    if (logs.isSorted()) {
+        cout << "\nLa lista ya esta ordenada. "
+             << "No se ejecutara nuevamente Merge Sort.\n";
+
+        // también permitimos exportar un archivo que ya llegó ordenado
+        try {
+            filesystem::create_directories("out");
+            writeLogs("out/output608.out", logs);
+            cout << "Archivo generado: out/output608.out\n";
+        }
+        catch (const exception& error) {
+            cerr << "No se pudo guardar la salida: "
+                 << error.what() << '\n';
+        }
+
+        return true;
+    }
+
+    cout << "\nAntes de ordenar, predice como crecera "
+         << "el numero de comparaciones al aumentar los datos:\n";
+    cout << "1. Aproximadamente n\n";
+    cout << "2. Aproximadamente n * log2(n)\n";
+    cout << "3. Aproximadamente n^2\n";
+
+    int prediction;
+
+    if (!readOption("Selecciona tu prediccion: ", 1, 3, prediction)) {
+        return false;
+    }
+
+    string predictionText;
+
+    switch (prediction) {
+        case 1:
+            predictionText = "n";
+            break;
+
+        case 2:
+            predictionText = "n * log2(n)";
+            break;
+
+        case 3:
+            predictionText = "n^2";
+            break;
+    }
+
+    // medimos únicamente la llamada al ordenamiento
+    // no incluimos entrada, verificación previa ni escritura del archivo
+    auto start = chrono::steady_clock::now();
+
+    SortStats stats = logs.sort();
+
+    auto end = chrono::steady_clock::now();
+
+    double elapsedTime =
+        chrono::duration<double, micro>(end - start).count();
+
+    bool ordered = logs.isSorted();
+
+    cout << "\n========== RESULTADOS DEL ORDENAMIENTO ==========\n";
+    cout << "Algoritmo: Merge Sort\n";
+    cout << "Archivo: " << fileName << '\n';
+    cout << "Registros: " << logs.getSize() << '\n';
+    cout << "Prediccion: " << predictionText << '\n';
+    cout << "Tiempo: " << elapsedTime << " microsegundos\n";
+    cout << "Comparaciones entre datos: " << stats.comparisons << '\n';
+    cout << "Profundidad maxima de recursion: "
+         << stats.maxDepth << '\n';
+
+    cout << "Verificacion del orden: "
+         << (ordered ? "Correcto" : "Incorrecto") << '\n';
+
+    // comparamos la predicción con el crecimiento teórico del algoritmo
+    // una sola corrida no permite demostrar una tasa de crecimiento
+    cout << "Crecimiento teorico de Merge Sort: O(n log n)\n";
+    cout << "Coincidio la prediccion con el crecimiento teorico: "
+         << (prediction == 2 ? "Si" : "No") << '\n';
+
+    cout << "Esta evaluacion usa la complejidad teorica; "
+         << "una sola corrida no demuestra el crecimiento.\n";
+
+    if (!ordered) {
+        cout << "No se guardara la salida porque fallo "
+             << "la verificacion del orden.\n";
+        return true;
+    }
+
+    cout << "\nPrimer registro ordenado:\n";
+    cout << logs.getHead()->data.toString() << '\n';
+
+    cout << "\nUltimo registro ordenado:\n";
+    cout << logs.getTail()->data.toString() << '\n';
+
+    try {
+        // creamos la carpeta si todavía no existe
+        filesystem::create_directories("out");
+
+        // escribimos recorriendo directamente la lista ordenada
+        writeLogs("out/output608.out", logs);
+
+        cout << "\nArchivo generado: out/output608.out\n";
+    }
+    catch (const exception& error) {
+        cerr << "\nLa lista quedo ordenada, pero no se pudo "
+             << "guardar la salida: " << error.what() << '\n';
+    }
+
+    return true;
+}
+
 int main() {
     DoublyLinkedList<Log> logs;
     LoadResult result;
@@ -160,8 +284,10 @@ int main() {
 
         switch (option) {
             case 1:
-                cout << "\nEl ordenamiento se agregara "
-                     << "en el siguiente avance.\n";
+                if (!sortLogs(logs, fileName)) {
+                    cout << "\nEntrada terminada.\n";
+                    return 0;
+                }
                 break;
 
             case 2:
