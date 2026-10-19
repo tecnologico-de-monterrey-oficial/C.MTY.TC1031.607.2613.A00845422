@@ -1,0 +1,5 @@
+Sep 30 2024 12:00:00 10.0.0.2 Evento B
+Sep 29 2024 10:00:00 10.0.0.1 Evento A primero
+Sep 30 2024 09:00:00 10.0.0.1 Evento A
+Sep 29 2024 10:00:00 10.0.0.2 Evento A segundo
+Oct 01 2024 08:00:00 10.0.0.3 Evento C
