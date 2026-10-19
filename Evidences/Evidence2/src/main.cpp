@@ -1,12 +1,13 @@
+#include <chrono>
+#include <filesystem>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include <chrono>
-#include <filesystem>
-#include "SearchManager.h"
 
 #include "FileManager.h"
+#include "SearchManager.h"
+#include "StatisticsManager.h"
 
 using namespace std;
 
@@ -34,7 +35,7 @@ bool readOption(
             // descartamos espacios después del número
             input >> ws;
 
-            // no permitimos caracteres adicionales
+            // rechazamos caracteres adicionales y valores fuera del rango
             if (input.eof() &&
                 value >= minimum &&
                 value <= maximum) {
@@ -75,7 +76,7 @@ void printLoadSummary(
     cout << "\nLos registros conservan el orden de llegada.\n";
 }
 
-// presenta las opciones que iremos completando
+// presenta las opciones de la aplicación
 void showMenu() {
     cout << "\n========== EVIDENCIA 2 ==========\n";
     cout << "1. Ordenar por fecha y hora\n";
@@ -85,7 +86,7 @@ void showMenu() {
     cout << "5. Salir\n";
 }
 
-// ordena los logs, muestra las mediciones y genera el archivo
+// ordena los registros, muestra las mediciones y genera la salida
 // regresa false si termina la entrada de la terminal
 bool sortLogs(
     DoublyLinkedList<Log>& logs,
@@ -101,10 +102,11 @@ bool sortLogs(
         cout << "\nLa lista ya esta ordenada. "
              << "No se ejecutara nuevamente Merge Sort.\n";
 
-        // también permitimos exportar un archivo que ya llegó ordenado
+        // exportamos también un archivo que ya llegó ordenado
         try {
             filesystem::create_directories("out");
             writeLogs("out/output608.out", logs);
+
             cout << "Archivo generado: out/output608.out\n";
         }
         catch (const exception& error) {
@@ -144,7 +146,6 @@ bool sortLogs(
     }
 
     // medimos únicamente la llamada al ordenamiento
-    // no incluimos entrada, verificación previa ni escritura del archivo
     auto start = chrono::steady_clock::now();
 
     SortStats stats = logs.sort();
@@ -154,6 +155,7 @@ bool sortLogs(
     double elapsedTime =
         chrono::duration<double, micro>(end - start).count();
 
+    // esta comprobación queda fuera de la medición
     bool ordered = logs.isSorted();
 
     cout << "\n========== RESULTADOS DEL ORDENAMIENTO ==========\n";
@@ -162,15 +164,15 @@ bool sortLogs(
     cout << "Registros: " << logs.getSize() << '\n';
     cout << "Prediccion: " << predictionText << '\n';
     cout << "Tiempo: " << elapsedTime << " microsegundos\n";
-    cout << "Comparaciones entre datos: " << stats.comparisons << '\n';
+    cout << "Comparaciones entre datos: "
+         << stats.comparisons << '\n';
     cout << "Profundidad maxima de recursion: "
          << stats.maxDepth << '\n';
 
     cout << "Verificacion del orden: "
          << (ordered ? "Correcto" : "Incorrecto") << '\n';
 
-    // comparamos la predicción con el crecimiento teórico del algoritmo
-    // una sola corrida no permite demostrar una tasa de crecimiento
+    // la evaluación de la predicción utiliza la complejidad teórica
     cout << "Crecimiento teorico de Merge Sort: O(n log n)\n";
     cout << "Coincidio la prediccion con el crecimiento teorico: "
          << (prediction == 2 ? "Si" : "No") << '\n';
@@ -194,7 +196,7 @@ bool sortLogs(
         // creamos la carpeta si todavía no existe
         filesystem::create_directories("out");
 
-        // escribimos recorriendo directamente la lista ordenada
+        // escribimos recorriendo directamente los nodos
         writeLogs("out/output608.out", logs);
 
         cout << "\nArchivo generado: out/output608.out\n";
@@ -207,7 +209,7 @@ bool sortLogs(
     return true;
 }
 
-// solicita un día y repite la captura si el formato es inválido
+// solicita un día y repite si la fecha es inválida
 // regresa false si termina la entrada de la terminal
 bool readSearchDay(SearchDay& day) {
     while (true) {
@@ -237,7 +239,7 @@ int main() {
     LoadResult result;
     string fileName;
 
-    // indica que se completó la opción de ordenar o verificar el orden
+    // indica que la opción 1 confirmó el orden de los registros
     bool orderReady = false;
 
     // conservamos el último día consultado para la opción 3
@@ -278,7 +280,7 @@ int main() {
                 return 0;
             }
 
-            // no permitimos una ruta vacía o formada por espacios
+            // rechazamos una ruta vacía o formada por espacios
             if (fileName.find_first_not_of(" \t\r\n") == string::npos) {
                 cout << "La ruta no puede estar vacia.\n";
                 continue;
@@ -290,7 +292,7 @@ int main() {
 
             printLoadSummary(fileName, result, logs);
 
-            // la carga terminó y podemos entrar al menú principal
+            // terminamos la selección y pasamos al menú principal
             break;
         }
         catch (const runtime_error& error) {
@@ -298,7 +300,6 @@ int main() {
             cout << "Selecciona nuevamente el archivo.\n";
         }
         catch (const exception& error) {
-            // otros errores inesperados terminan con un mensaje claro
             cerr << "\nNo se pudo completar la carga: "
                  << error.what() << '\n';
             return 1;
@@ -316,14 +317,13 @@ int main() {
         }
 
         switch (option) {
-                        case 1:
+            case 1:
                 if (!sortLogs(logs, fileName)) {
                     cout << "\nEntrada terminada.\n";
                     return 0;
                 }
 
-                // habilitamos las búsquedas si hay registros
-                // y la opción 1 confirmó que están ordenados
+                // habilitamos búsquedas si hay datos ordenados
                 orderReady = !logs.isEmpty() && logs.isSorted();
                 break;
 
@@ -351,7 +351,7 @@ int main() {
                     break;
                 }
 
-                // si todavía no hay búsqueda, solicitamos el día
+                // solicitamos el día si no existe una búsqueda previa
                 if (!hasLastSearch) {
                     if (!readSearchDay(lastSearch)) {
                         cout << "\nEntrada terminada.\n";
@@ -361,14 +361,16 @@ int main() {
                     hasLastSearch = true;
                 }
 
-                // repetimos el último día en orden descendente
                 showLogsByDay(logs, lastSearch, true);
                 break;
 
-            case 4:
-                cout << "\nLas estadisticas se agregaran "
-                     << "en un avance posterior.\n";
+            case 4: {
+                // las frecuencias no dependen del orden de los registros
+                FileStatistics statistics = calculateStatistics(logs);
+
+                showStatistics(statistics);
                 break;
+            }
 
             case 5:
                 cout << "\nPrograma terminado.\n";
