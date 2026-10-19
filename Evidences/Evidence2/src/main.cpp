@@ -4,6 +4,7 @@
 #include <string>
 #include <chrono>
 #include <filesystem>
+#include "SearchManager.h"
 
 #include "FileManager.h"
 
@@ -206,10 +207,42 @@ bool sortLogs(
     return true;
 }
 
+// solicita un día y repite la captura si el formato es inválido
+// regresa false si termina la entrada de la terminal
+bool readSearchDay(SearchDay& day) {
+    while (true) {
+        cout << "\nIngresa el dia que deseas consultar.\n";
+        cout << "Formato: Mmm DD AAAA\n";
+        cout << "Ejemplo: Sep 14 2024\n";
+        cout << "> ";
+
+        string line;
+
+        if (!getline(cin, line)) {
+            return false;
+        }
+
+        try {
+            day = parseSearchDay(line);
+            return true;
+        }
+        catch (const invalid_argument& error) {
+            cout << "Fecha invalida: " << error.what() << '\n';
+        }
+    }
+}
+
 int main() {
     DoublyLinkedList<Log> logs;
     LoadResult result;
     string fileName;
+
+    // indica que se completó la opción de ordenar o verificar el orden
+    bool orderReady = false;
+
+    // conservamos el último día consultado para la opción 3
+    bool hasLastSearch = false;
+    SearchDay lastSearch;
 
     // elegimos el archivo y permitimos reintentar si no existe
     while (true) {
@@ -283,21 +316,53 @@ int main() {
         }
 
         switch (option) {
-            case 1:
+                        case 1:
                 if (!sortLogs(logs, fileName)) {
                     cout << "\nEntrada terminada.\n";
                     return 0;
                 }
+
+                // habilitamos las búsquedas si hay registros
+                // y la opción 1 confirmó que están ordenados
+                orderReady = !logs.isEmpty() && logs.isSorted();
                 break;
 
             case 2:
-                cout << "\nLa busqueda por dia se agregara "
-                     << "en un avance posterior.\n";
+                if (!orderReady) {
+                    cout << "\nPrimero debes ordenar los registros "
+                         << "con la opcion 1.\n";
+                    break;
+                }
+
+                if (!readSearchDay(lastSearch)) {
+                    cout << "\nEntrada terminada.\n";
+                    return 0;
+                }
+
+                hasLastSearch = true;
+
+                showLogsByDay(logs, lastSearch, false);
                 break;
 
             case 3:
-                cout << "\nEl listado descendente con pila "
-                     << "se agregara junto con la busqueda.\n";
+                if (!orderReady) {
+                    cout << "\nPrimero debes ordenar los registros "
+                         << "con la opcion 1.\n";
+                    break;
+                }
+
+                // si todavía no hay búsqueda, solicitamos el día
+                if (!hasLastSearch) {
+                    if (!readSearchDay(lastSearch)) {
+                        cout << "\nEntrada terminada.\n";
+                        return 0;
+                    }
+
+                    hasLastSearch = true;
+                }
+
+                // repetimos el último día en orden descendente
+                showLogsByDay(logs, lastSearch, true);
                 break;
 
             case 4:
